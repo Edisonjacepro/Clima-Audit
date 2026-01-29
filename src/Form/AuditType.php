@@ -11,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 
 class AuditType extends AbstractType
 {
@@ -20,7 +21,11 @@ class AuditType extends AbstractType
             ->add('address', TextType::class, [
                 'label' => 'Adresse du site',
                 'constraints' => [
-                    new NotBlank(['message' => 'Merci de saisir une adresse complete.']),
+                    new NotBlank(message: 'Merci de saisir une adresse complete.'),
+                    new Regex(
+                        pattern: '/^\s*\d+\s+.+\s+\d{5}\s+.+$/',
+                        message: 'Adresse incomplete. Indiquez numero, rue, code postal et ville.'
+                    ),
                 ],
             ])
             ->add('inputActivityType', ChoiceType::class, [
@@ -35,7 +40,7 @@ class AuditType extends AbstractType
                 'placeholder' => 'Selectionner',
                 'required' => true,
                 'constraints' => [
-                    new NotBlank(['message' => 'Merci de selectionner le type d\'activite.']),
+                    new NotBlank(message: 'Merci de selectionner le type d\'activite.'),
                 ],
             ])
             ->add('inputBuildingType', ChoiceType::class, [
@@ -50,7 +55,7 @@ class AuditType extends AbstractType
                 'placeholder' => 'Selectionner',
                 'required' => true,
                 'constraints' => [
-                    new NotBlank(['message' => 'Merci de selectionner le type de batiment.']),
+                    new NotBlank(message: 'Merci de selectionner le type de batiment.'),
                 ],
             ])
             ->add('inputHasBasement', CheckboxType::class, [
@@ -67,7 +72,7 @@ class AuditType extends AbstractType
                 'placeholder' => 'Selectionner',
                 'required' => true,
                 'constraints' => [
-                    new NotBlank(['message' => 'Merci de selectionner la criticite.']),
+                    new NotBlank(message: 'Merci de selectionner la criticite.'),
                 ],
             ])
             ->add('submit', SubmitType::class, [
