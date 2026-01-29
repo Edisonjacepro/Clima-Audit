@@ -13,36 +13,25 @@ class HeatRiskProvider extends AbstractRiskProvider
 
     protected function getProviderName(): string
     {
-        return 'MockHeatProvider';
+        return 'MeteoFrance (indisponible)';
     }
 
     protected function getProviderVersion(): string
     {
-        return 'v1';
+        return 'n/a';
     }
 
     protected function compute(float $lat, float $lng): RiskDataDTO
     {
-        $score = $this->scoreFromCoords($lat, $lng, 7);
-
         return new RiskDataDTO(
             hazard: $this->getHazard(),
             rawIndicators: [
-                'heat_index' => $score,
-                'lat' => $lat,
-                'lng' => $lng,
+                'status' => 'unavailable',
             ],
-            normalizedScore: $score,
-            explanation: 'Exposition estimée aux vagues de chaleur sur la base d’un modèle simplifié.',
-            confidence: 55,
+            normalizedScore: 0,
+            explanation: 'Donnee officielle chaleur indisponible (aucune API publique stable connectee).',
+            confidence: 0,
             sourceMeta: $this->buildSourceMeta($lat, $lng)
         );
-    }
-
-    private function scoreFromCoords(float $lat, float $lng, int $seed): int
-    {
-        $value = abs(sin(($lat + $lng + $seed) * 0.15));
-
-        return (int) round(min(100, $value * 100));
     }
 }

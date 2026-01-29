@@ -14,7 +14,7 @@
                 <span class="badge">Chaleur</span>
                 <span class="badge">Inondation</span>
                 <span class="badge">Secheresse argiles</span>
-                <span class="badge">Feux</span>
+                <span class="badge">Cavites souterraines</span>
             </p>
             <a class="cta" href="{{ path('audit_new') }}">Lancer un audit</a>
         </div>
@@ -30,7 +30,7 @@
         <div class="card">
             <h2>Comment le score est calcule ?</h2>
             <p class="muted">
-                Le score global combine les scores par alea (chaleur, inondation, secheresse argiles, feux).
+                Le score global combine les scores par alea (chaleur, inondation, secheresse argiles, cavites).
                 Chaque alea est normalise sur 0 a 100 puis pondere selon une grille configurable.
             </p>
             <p class="muted">
@@ -41,8 +41,11 @@
                 La criticite ne modifie pas les scores, elle ajuste la priorisation des recommandations.
             </p>
             <p class="muted">
-                Le calcul n'est lance que si l'adresse est geocodee avec precision. Les sources utilisees sont affichees dans
-                le resultat et le PDF.
+                Le calcul n'est lance que si l'adresse est complete et geocodee avec precision.
+                Chaleur: affichee comme indisponible tant qu'aucune source officielle stable n'est connectee.
+            </p>
+            <p class="muted">
+                Sources officielles: IGN Geoplateforme (geocodage) et Georisques (RGA, BDCavites, alea ruissellement via ArcGIS REST).
             </p>
         </div>
     </div>

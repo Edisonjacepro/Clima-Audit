@@ -8,14 +8,17 @@ parameters:
         heat: 1.0
         flood: 1.2
         drought_clay: 0.9
-        fire: 1.0
+        cavites: 0.8
     app.risk.thresholds:
         low: 25
         medium: 50
         high: 75
-    app.geocoding.nominatim_base_url: '%env(default::GEOCODING_BASE_URL)%'
-    app.geocoding.user_agent: '%env(default::GEOCODING_USER_AGENT)%'
-    app.geocoding.email: '%env(default::GEOCODING_EMAIL)%'
+    app.geocoding.base_url: '%env(default::GEOCODING_BASE_URL)%'
+    app.georisques.flood_frequent_layer: '%env(default::GEORISQUES_FLOOD_FREQUENT_LAYER_URL)%'
+    app.georisques.flood_medium_layer: '%env(default::GEORISQUES_FLOOD_MEDIUM_LAYER_URL)%'
+    app.georisques.flood_rare_layer: '%env(default::GEORISQUES_FLOOD_RARE_LAYER_URL)%'
+    app.georisques.rga_layer: '%env(default::GEORISQUES_RGA_LAYER_URL)%'
+    app.georisques.cavites_layer: '%env(default::GEORISQUES_CAVITES_LAYER_URL)%'
 
 services:
     # default configuration for services in *this* file
@@ -46,11 +49,25 @@ services:
             $providers: !tagged_iterator app.risk_provider
 
     App\Service\GeocodingServiceInterface:
-        class: App\Service\NominatimGeocodingService
+        class: App\Service\IgnGeocodingService
         arguments:
-            $baseUrl: '%app.geocoding.nominatim_base_url%'
-            $userAgent: '%app.geocoding.user_agent%'
-            $email: '%app.geocoding.email%'
+            $baseUrl: '%app.geocoding.base_url%'
+
+    App\Service\ArcGisRiskClient: ~
+
+    App\Service\Provider\FloodRiskProvider:
+        arguments:
+            $frequentLayerUrl: '%app.georisques.flood_frequent_layer%'
+            $mediumLayerUrl: '%app.georisques.flood_medium_layer%'
+            $rareLayerUrl: '%app.georisques.flood_rare_layer%'
+
+    App\Service\Provider\DroughtClayRiskProvider:
+        arguments:
+            $layerUrl: '%app.georisques.rga_layer%'
+
+    App\Service\Provider\CavitesRiskProvider:
+        arguments:
+            $layerUrl: '%app.georisques.cavites_layer%'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

@@ -26,11 +26,20 @@
                                     'heat': 'Chaleur',
                                     'flood': 'Inondation',
                                     'drought_clay': 'Secheresse argiles',
-                                    'fire': 'Feux de vegetation'
+                                    'cavites': 'Cavites souterraines'
                                 } %}
                                 <strong>{{ labels[hazard] ?? hazard }}</strong>
-                                <div class="muted">Score: {{ score }}/100 - {{ result.levelsJson[hazard] }}</div>
-                                <a class="cta" href="{{ path('audit_hazard', {id: audit.id, hazard: hazard}) }}">Voir detail</a>
+                                {% set level = result.levelsJson[hazard] %}
+                                <div class="muted">
+                                    {% if level == 'indisponible' %}
+                                        Donnee indisponible
+                                    {% else %}
+                                        Score: {{ score }}/100 - {{ level }}
+                                    {% endif %}
+                                </div>
+                                {% if level != 'indisponible' %}
+                                    <a class="cta" href="{{ path('audit_hazard', {id: audit.id, hazard: hazard}) }}">Voir detail</a>
+                                {% endif %}
                             </div>
                         {% endif %}
                     {% endfor %}
@@ -63,7 +72,7 @@
                     {% endfor %}
                 </div>
                 <p class="muted" style="margin-top:12px;">
-                    Geocodage: Nominatim (OpenStreetMap). Les sources exactes des aleas seront detaillees dans le rapport PDF.
+                    Geocodage: IGN Geoplateforme. Risques: Georisques (RGA, BDCavites, alea ruissellement via ArcGIS REST).
                 </p>
             </div>
         {% endif %}

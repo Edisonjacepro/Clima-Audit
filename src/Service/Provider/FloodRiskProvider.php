@@ -3,9 +3,20 @@
 namespace App\Service\Provider;
 
 use App\Dto\RiskDataDTO;
+use App\Service\ArcGisRiskClient;
 
 class FloodRiskProvider extends AbstractRiskProvider
 {
+    public function __construct(
+        private ArcGisRiskClient $arcGisRiskClient,
+        private string $frequentLayerUrl,
+        private string $mediumLayerUrl,
+        private string $rareLayerUrl,
+        \Psr\Cache\CacheItemPoolInterface $cache
+    ) {
+        parent::__construct($cache);
+    }
+
     public function getHazard(): string
     {
         return 'flood';
@@ -13,36 +24,50 @@ class FloodRiskProvider extends AbstractRiskProvider
 
     protected function getProviderName(): string
     {
-        return 'MockFloodProvider';
+        return 'Georisques - Alea ruissellement (ArcGIS)';
     }
 
     protected function getProviderVersion(): string
     {
-        return 'v1';
+        return 'FeatureServer';
     }
 
     protected function compute(float $lat, float $lng): RiskDataDTO
     {
-        $score = $this->scoreFromCoords($lat, $lng, 13);
+        $frequentCount = $this->arcGisRiskClient->fetchCount($this->frequentLayerUrl, $lat, $lng);
+        $mediumCount = $this->arcGisRiskClient->fetchCount($this->mediumLayerUrl, $lat, $lng);
+        $rareCount = $this->arcGisRiskClient->fetchCount($this->rareLayerUrl, $lat, $lng);
+
+        $score = 10;
+        $classLabel = 'aucun';
+        if ($frequentCount > 0) {
+            $score = 90;
+            $classLabel = 'frequent';
+        } elseif ($mediumCount > 0) {
+            $score = 60;
+            $classLabel = 'moyen';
+        } elseif ($rareCount > 0) {
+            $score = 30;
+            $classLabel = 'rare';
+        }
+
+        $data = [
+            'frequent' => $frequentCount,
+            'medium' => $mediumCount,
+            'rare' => $rareCount,
+            'class' => $classLabel,
+        ];
 
         return new RiskDataDTO(
             hazard: $this->getHazard(),
-            rawIndicators: [
-                'flood_index' => $score,
-                'lat' => $lat,
-                'lng' => $lng,
-            ],
+            rawIndicators: $data,
             normalizedScore: $score,
-            explanation: 'Risque d’inondation estimé via un proxy topographique simplifié.',
-            confidence: 60,
+            explanation: sprintf(
+                'Alea ruissellement (pluvial) issu des donnees officielles Georisques. Classe detectee: %s.',
+                $classLabel
+            ),
+            confidence: 70,
             sourceMeta: $this->buildSourceMeta($lat, $lng)
         );
-    }
-
-    private function scoreFromCoords(float $lat, float $lng, int $seed): int
-    {
-        $value = abs(cos(($lat * 0.8 + $lng + $seed) * 0.12));
-
-        return (int) round(min(100, $value * 100));
     }
 }

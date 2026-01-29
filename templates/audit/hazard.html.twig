@@ -8,12 +8,17 @@
             'heat': 'Chaleur',
             'flood': 'Inondation',
             'drought_clay': 'Secheresse argiles',
-            'fire': 'Feux de vegetation'
+            'cavites': 'Cavites souterraines'
         } %}
         <h1>Detail: {{ labels[hazard] ?? hazard }}</h1>
-        <div class="score">{{ score }}/100</div>
-        <div class="pill">Niveau: {{ level }}</div>
-        <p class="muted">{{ explanation }}</p>
+        {% if level == 'indisponible' %}
+            <div class="pill">Donnee indisponible</div>
+            <p class="muted">Cette donnee officielle n'est pas disponible pour le moment.</p>
+        {% else %}
+            <div class="score">{{ score }}/100</div>
+            <div class="pill">Niveau: {{ level }}</div>
+            <p class="muted">{{ explanation }}</p>
+        {% endif %}
         <a class="cta" href="{{ path('audit_result', {id: audit.id}) }}">Retour au tableau de bord</a>
     </div>
 {% endblock %}

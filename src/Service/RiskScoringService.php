@@ -23,6 +23,8 @@ class RiskScoringService
         $explanations = [];
         $dataSources = [];
         $confidenceTotal = 0;
+        $confidenceCount = 0;
+        $globalScores = [];
 
         foreach ($riskData as $data) {
             $score = $data->normalizedScore;
@@ -31,16 +33,22 @@ class RiskScoringService
             }
 
             $scores[$data->hazard] = $score;
-            $levels[$data->hazard] = $this->levelForScore($score);
+            if ($data->confidence <= 0) {
+                $levels[$data->hazard] = 'indisponible';
+            } else {
+                $levels[$data->hazard] = $this->levelForScore($score);
+                $globalScores[$data->hazard] = $score;
+                $confidenceTotal += $data->confidence;
+                $confidenceCount++;
+            }
             $explanations[$data->hazard] = $data->explanation;
             $dataSources[] = $data->sourceMeta;
-            $confidenceTotal += $data->confidence;
         }
 
-        $globalScore = $this->computeGlobalScore($scores);
-        $globalLevel = $this->levelForScore($globalScore);
-        $confidenceScore = count($riskData) > 0
-            ? (int) round($confidenceTotal / count($riskData))
+        $globalScore = $this->computeGlobalScore($globalScores);
+        $globalLevel = empty($globalScores) ? 'indisponible' : $this->levelForScore($globalScore);
+        $confidenceScore = $confidenceCount > 0
+            ? (int) round($confidenceTotal / $confidenceCount)
             : 0;
 
         return new ScoringResultDTO(

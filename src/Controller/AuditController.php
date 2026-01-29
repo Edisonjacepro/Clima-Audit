@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Audit;
 use App\Form\AuditType;
 use App\Service\AuditOrchestrator;
+use App\Service\DataSourceUnavailableException;
 use App\Service\GeocodingException;
 use App\Service\GeocodingServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -36,7 +37,7 @@ class AuditController extends AbstractController
             } catch (GeocodingException $exception) {
                 $form->addError(new FormError($exception->getMessage()));
                 if ($this->getParameter('kernel.debug')) {
-                    $form->addError(new FormError('Diagnostic: verifiez la connectivite sortante et le User-Agent Nominatim.'));
+                    $form->addError(new FormError('Diagnostic: verifiez la connectivite sortante vers data.geopf.fr.'));
                 }
                 return $this->render('audit/new.html.twig', [
                     'form' => $form->createView(),
@@ -47,7 +48,14 @@ class AuditController extends AbstractController
             $entityManager->persist($audit);
             $entityManager->flush();
 
-            $auditOrchestrator->compute($audit);
+            try {
+                $auditOrchestrator->compute($audit);
+            } catch (DataSourceUnavailableException $exception) {
+                $form->addError(new FormError($exception->getMessage()));
+                return $this->render('audit/new.html.twig', [
+                    'form' => $form->createView(),
+                ]);
+            }
 
             return $this->redirectToRoute('audit_result', ['id' => $audit->getId()]);
         }
