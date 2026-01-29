@@ -14,6 +14,10 @@ parameters:
         medium: 50
         high: 75
     app.geocoding.base_url: '%env(default::GEOCODING_BASE_URL)%'
+    app.geo_api.base_url: '%env(default::GEO_API_BASE_URL)%'
+    app.meteofrance.vigilance.base_url: '%env(default::METEOFRANCE_VIGILANCE_BASE_URL)%'
+    app.meteofrance.vigilance.token: '%env(string:METEOFRANCE_API_TOKEN)%'
+    app.hubeau.base_url: '%env(default::HUBEAU_API_BASE_URL)%'
     app.georisques.flood_frequent_layer: '%env(default::GEORISQUES_FLOOD_FREQUENT_LAYER_URL)%'
     app.georisques.flood_medium_layer: '%env(default::GEORISQUES_FLOOD_MEDIUM_LAYER_URL)%'
     app.georisques.flood_rare_layer: '%env(default::GEORISQUES_FLOOD_RARE_LAYER_URL)%'
@@ -53,7 +57,20 @@ services:
         arguments:
             $baseUrl: '%app.geocoding.base_url%'
 
+    App\Service\GeoApiGouvService:
+        arguments:
+            $baseUrl: '%app.geo_api.base_url%'
+
+    App\Service\HubEauHydrometryClient:
+        arguments:
+            $baseUrl: '%app.hubeau.base_url%'
+
     App\Service\ArcGisRiskClient: ~
+
+    App\Service\Provider\HeatRiskProvider:
+        arguments:
+            $baseUrl: '%app.meteofrance.vigilance.base_url%'
+            $apiToken: '%app.meteofrance.vigilance.token%'
 
     App\Service\Provider\FloodRiskProvider:
         arguments:

@@ -42,10 +42,15 @@
             </p>
             <p class="muted">
                 Le calcul n'est lance que si l'adresse est complete et geocodee avec precision.
-                Chaleur: affichee comme indisponible tant qu'aucune source officielle stable n'est connectee.
             </p>
             <p class="muted">
-                Sources officielles: IGN Geoplateforme (geocodage) et Georisques (RGA, BDCavites, alea ruissellement via ArcGIS REST).
+                Chaleur: vigilance canicule Meteo-France (phenomenon_id 6). Inondation: alea ruissellement Georisques
+                (score principal) + hydrometrie Hub'Eau (contexte). Secheresse argiles: Georisques RGA.
+                Cavites: Georisques BDCavites.
+            </p>
+            <p class="muted">
+                Sources officielles: IGN Geoplateforme (geocodage), Meteo-France Vigilance (chaleur),
+                Georisques (RGA, BDCavites, alea ruissellement via ArcGIS REST) et Hub'Eau (hydrometrie).
             </p>
         </div>
     </div>
