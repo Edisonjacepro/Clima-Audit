@@ -10,6 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class AuditType extends AbstractType
 {
@@ -18,6 +19,9 @@ class AuditType extends AbstractType
         $builder
             ->add('address', TextType::class, [
                 'label' => 'Adresse du site',
+                'constraints' => [
+                    new NotBlank(['message' => 'Merci de saisir une adresse complete.']),
+                ],
             ])
             ->add('inputActivityType', ChoiceType::class, [
                 'label' => 'Type d\'activite',
@@ -29,7 +33,10 @@ class AuditType extends AbstractType
                     'Autre' => 'autre',
                 ],
                 'placeholder' => 'Selectionner',
-                'required' => false,
+                'required' => true,
+                'constraints' => [
+                    new NotBlank(['message' => 'Merci de selectionner le type d\'activite.']),
+                ],
             ])
             ->add('inputBuildingType', ChoiceType::class, [
                 'label' => 'Type de batiment',
@@ -41,7 +48,10 @@ class AuditType extends AbstractType
                     'Autre' => 'autre',
                 ],
                 'placeholder' => 'Selectionner',
-                'required' => false,
+                'required' => true,
+                'constraints' => [
+                    new NotBlank(['message' => 'Merci de selectionner le type de batiment.']),
+                ],
             ])
             ->add('inputHasBasement', CheckboxType::class, [
                 'label' => 'Presence d\'un sous-sol',
@@ -55,7 +65,10 @@ class AuditType extends AbstractType
                     'Elevee' => 'high',
                 ],
                 'placeholder' => 'Selectionner',
-                'required' => false,
+                'required' => true,
+                'constraints' => [
+                    new NotBlank(['message' => 'Merci de selectionner la criticite.']),
+                ],
             ])
             ->add('submit', SubmitType::class, [
                 'label' => 'Lancer l\'audit',
