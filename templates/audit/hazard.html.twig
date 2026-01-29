@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Detail alea{% endblock %}
+
+{% block body %}
+    <div class="card">
+        {% set labels = {
+            'heat': 'Chaleur',
+            'flood': 'Inondation',
+            'drought_clay': 'Secheresse argiles',
+            'fire': 'Feux de vegetation'
+        } %}
+        <h1>Detail: {{ labels[hazard] ?? hazard }}</h1>
+        <div class="score">{{ score }}/100</div>
+        <div class="pill">Niveau: {{ level }}</div>
+        <p class="muted">{{ explanation }}</p>
+        <a class="cta" href="{{ path('audit_result', {id: audit.id}) }}">Retour au tableau de bord</a>
+    </div>
+{% endblock %}

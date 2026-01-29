@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvel audit{% endblock %}
+
+{% block body %}
+    <div class="card">
+        <h1>Nouvel audit</h1>
+        <p class="muted">Saisissez l'adresse et quelques parametres pour lancer l'analyse.</p>
+        {% if form.vars.submitted and not form.vars.valid %}
+            <div class="action-item" style="border-color: rgba(255, 179, 71, 0.6);">
+                <strong>Informations manquantes</strong>
+                <div class="muted">Merci de completer les champs en erreur avant de continuer.</div>
+            </div>
+        {% endif %}
+        <div class="form-error">{{ form_errors(form) }}</div>
+        {{ form_start(form) }}
+            {{ form_row(form.address) }}
+            <div class="form-error">{{ form_errors(form.address) }}</div>
+            <div class="form-row">
+                {{ form_row(form.inputActivityType) }}
+                {{ form_row(form.inputBuildingType) }}
+            </div>
+            <div class="form-row">
+            <div>
+                <label for="{{ form.inputHasBasement.vars.id }}">
+                    Presence d'un sous-sol
+                    <span class="info" title="Un sous-sol peut augmenter le risque d'inondation.">i</span>
+                </label>
+                <div class="checkbox-row">
+                    {{ form_widget(form.inputHasBasement) }}
+                </div>
+                {{ form_errors(form.inputHasBasement) }}
+            </div>
+            <div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    {{ form_label(form.inputCriticality, "Criticite") }}
+                    <span class="info" title="La criticite sert a prioriser les actions; elle n'augmente pas le score de risque.">i</span>
+                </div>
+                {{ form_widget(form.inputCriticality) }}
+                {{ form_errors(form.inputCriticality) }}
+            </div>
+        </div>
+        <div>
+            {{ form_widget(form.submit, {attr: {class: 'btn'}}) }}
+        </div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

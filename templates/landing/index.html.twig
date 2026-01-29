@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Audit express climat{% endblock %}
+
+{% block body %}
+    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); align-items: center;">
+        <div class="card">
+            <h1>Audit express de risque climatique par site</h1>
+            <p class="muted">
+                Obtenez en quelques minutes un pre-diagnostic clair et partageable:
+                scores multi-aleas, explications simples et recommandations priorisees.
+            </p>
+            <p>
+                <span class="badge">Chaleur</span>
+                <span class="badge">Inondation</span>
+                <span class="badge">Secheresse argiles</span>
+                <span class="badge">Feux</span>
+            </p>
+            <a class="cta" href="{{ path('audit_new') }}">Lancer un audit</a>
+        </div>
+        <div class="card">
+            <h2>Apercu gratuit</h2>
+            <p class="muted">Decouvrez si votre site est eligibile et obtenez un score global indicatif.</p>
+            <ul class="muted">
+                <li>Resultats rapides (moins de 5 min)</li>
+                <li>PDF partageable</li>
+                <li>Recommandations prioritaires</li>
+            </ul>
+        </div>
+        <div class="card">
+            <h2>Comment le score est calcule ?</h2>
+            <p class="muted">
+                Le score global combine les scores par alea (chaleur, inondation, secheresse argiles, feux).
+                Chaque alea est normalise sur 0 a 100 puis pondere selon une grille configurable.
+            </p>
+            <p class="muted">
+                Niveaux: faible (&lt;25), moyen (&lt;50), eleve (&lt;75), tres eleve (>=75).
+                La presence d'un sous-sol augmente le risque d'inondation.
+            </p>
+            <p class="muted">
+                La criticite ne modifie pas les scores, elle ajuste la priorisation des recommandations.
+            </p>
+            <p class="muted">
+                Le calcul n'est lance que si l'adresse est geocodee avec precision. Les sources utilisees sont affichees dans
+                le resultat et le PDF.
+            </p>
+        </div>
+    </div>
+{% endblock %}

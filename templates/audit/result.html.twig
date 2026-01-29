@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Resultats{% endblock %}
+
+{% block body %}
+    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+        <div class="card">
+            <h1>Resultats</h1>
+            <p class="muted">{{ audit.address }}</p>
+            {% if result %}
+                <div class="score">{{ result.scoresJson.global }}/100</div>
+                <div class="pill">Niveau: {{ result.levelsJson.global }}</div>
+                <p class="muted">Confiance donnees: {{ result.confidenceScore }}/100</p>
+            {% else %}
+                <p class="muted">Resultat indisponible.</p>
+            {% endif %}
+        </div>
+        {% if result %}
+            <div class="card">
+                <h2>Scores par alea</h2>
+                <div class="actions-list">
+                    {% for hazard, score in result.scoresJson %}
+                        {% if hazard != 'global' %}
+                            <div class="action-item">
+                                {% set labels = {
+                                    'heat': 'Chaleur',
+                                    'flood': 'Inondation',
+                                    'drought_clay': 'Secheresse argiles',
+                                    'fire': 'Feux de vegetation'
+                                } %}
+                                <strong>{{ labels[hazard] ?? hazard }}</strong>
+                                <div class="muted">Score: {{ score }}/100 - {{ result.levelsJson[hazard] }}</div>
+                                <a class="cta" href="{{ path('audit_hazard', {id: audit.id, hazard: hazard}) }}">Voir detail</a>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card">
+                <h2>Top 10 recommandations</h2>
+                <div class="actions-list">
+                    {% for action in result.recommendationsJson %}
+                        <div class="action-item">
+                            <strong>{{ action.title }}</strong>
+                            <div class="muted">{{ action.description }}</div>
+                            <div class="muted">Effort: {{ action.effort }} | Impact: {{ action.impact }} | Horizon: {{ action.horizon }}</div>
+                        </div>
+                    {% else %}
+                        <p class="muted">Aucune recommandation disponible.</p>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card">
+                <h2>Sources des donnees</h2>
+                <div class="actions-list">
+                    {% for source in result.dataSourcesJson %}
+                        <div class="action-item">
+                            <strong>{{ source.name }}</strong>
+                            <div class="muted">Version: {{ source.version }} | Date: {{ source.fetchedAt }}</div>
+                        </div>
+                    {% else %}
+                        <p class="muted">Sources indisponibles.</p>
+                    {% endfor %}
+                </div>
+                <p class="muted" style="margin-top:12px;">
+                    Geocodage: Nominatim (OpenStreetMap). Les sources exactes des aleas seront detaillees dans le rapport PDF.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
