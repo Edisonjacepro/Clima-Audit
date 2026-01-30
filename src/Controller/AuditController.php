@@ -4,16 +4,17 @@ namespace App\Controller;
 
 use App\Entity\Audit;
 use App\Form\AuditType;
-use App\Service\AuditOrchestrator;
-use App\Service\DataSourceUnavailableException;
 use App\Service\GeocodingException;
 use App\Service\GeocodingServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Message\ComputeAuditMessage;
 
 class AuditController extends AbstractController
 {
@@ -22,7 +23,7 @@ class AuditController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         GeocodingServiceInterface $geocodingService,
-        AuditOrchestrator $auditOrchestrator
+        MessageBusInterface $messageBus
     ): Response {
         $audit = new Audit();
         $form = $this->createForm(AuditType::class, $audit);
@@ -37,7 +38,7 @@ class AuditController extends AbstractController
             } catch (GeocodingException $exception) {
                 $form->addError(new FormError($exception->getMessage()));
                 if ($this->getParameter('kernel.debug')) {
-                    $form->addError(new FormError('Diagnostic: verifiez la connectivite sortante vers data.geopf.fr.'));
+                    $form->addError(new FormError('Diagnostic: verifiez la connectivite sortante vers data.geopf.fr et api-adresse.data.gouv.fr.'));
                 }
                 return $this->render('audit/new.html.twig', [
                     'form' => $form->createView(),
@@ -48,29 +49,47 @@ class AuditController extends AbstractController
             $entityManager->persist($audit);
             $entityManager->flush();
 
-            try {
-                $auditOrchestrator->compute($audit);
-            } catch (DataSourceUnavailableException $exception) {
-                $form->addError(new FormError($exception->getMessage()));
-                return $this->render('audit/new.html.twig', [
-                    'form' => $form->createView(),
-                ]);
-            }
+            $messageBus->dispatch(new ComputeAuditMessage($audit->getId()));
 
             return $this->redirectToRoute('audit_result', ['id' => $audit->getId()]);
         }
 
-        return $this->render('audit/new.html.twig', [
+        $response = $this->render('audit/new.html.twig', [
             'form' => $form->createView(),
         ]);
+        $response->setPrivate();
+        $response->setMaxAge(60);
+        $response->setSharedMaxAge(0);
+
+        return $response;
     }
 
     #[Route('/audit/{id}/result', name: 'audit_result')]
     public function result(Audit $audit): Response
     {
-        return $this->render('audit/result.html.twig', [
+        $response = $this->render('audit/result.html.twig', [
             'audit' => $audit,
             'result' => $audit->getResult(),
+            'isComputing' => $audit->getResult() === null || $audit->getStatus() !== Audit::STATUS_COMPUTED,
+        ]);
+        $response->setPrivate();
+        $response->setMaxAge(30);
+        $response->setSharedMaxAge(0);
+
+        return $response;
+    }
+
+    #[Route('/audit/{id}/status', name: 'audit_status')]
+    public function status(Audit $audit): JsonResponse
+    {
+        $result = $audit->getResult();
+        $payload = [
+            'status' => $audit->getStatus(),
+            'computed' => $result !== null && $audit->getStatus() === Audit::STATUS_COMPUTED,
+        ];
+
+        return new JsonResponse($payload, headers: [
+            'Cache-Control' => 'no-store, no-cache, must-revalidate',
         ]);
     }
 
@@ -90,12 +109,17 @@ class AuditController extends AbstractController
             throw $this->createNotFoundException('Alea inconnu.');
         }
 
-        return $this->render('audit/hazard.html.twig', [
+        $response = $this->render('audit/hazard.html.twig', [
             'audit' => $audit,
             'hazard' => $hazard,
             'score' => $scores[$hazard],
             'level' => $levels[$hazard] ?? null,
             'explanation' => $explanations[$hazard] ?? null,
         ]);
+        $response->setPrivate();
+        $response->setMaxAge(60);
+        $response->setSharedMaxAge(0);
+
+        return $response;
     }
 }

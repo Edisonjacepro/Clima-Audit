@@ -12,6 +12,19 @@ services:
     depends_on:
       - database
 
+  worker:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    volumes:
+      - .:/var/www/html
+    environment:
+      APP_ENV: dev
+      APP_DEBUG: 1
+    depends_on:
+      - database
+    command: ["php", "bin/console", "messenger:consume", "async", "-vv", "--memory-limit=256M"]
+
   web:
     image: nginx:1.27-alpine
     ports:

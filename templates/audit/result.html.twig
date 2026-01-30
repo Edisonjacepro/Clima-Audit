@@ -7,7 +7,102 @@
         <div class="card">
             <h1>Resultats</h1>
             <p class="muted">{{ audit.address }}</p>
-            {% if result %}
+            {% if isComputing %}
+                <div class="pill">Calcul en cours</div>
+                <p class="muted progress-message">Les donnees officielles sont en cours de chargement. Cette page se mettra a jour automatiquement.</p>
+                <div class="form-error progress-error" style="display:none; margin-top:12px;">
+                    Le calcul a echoue. Merci de reessayer ou de verifier le service worker.
+                </div>
+                <div class="muted progress-hint" style="display:none; margin-top:8px;">
+                    Le calcul semble long. Verifiez que le worker Messenger est bien demarre.
+                </div>
+                <div class="progress-wrap" aria-hidden="true" style="margin-top:16px;">
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width: 6%;"></div>
+                    </div>
+                    <div class="muted" style="margin-top:8px;">
+                        Progression estimee: <span class="progress-value">6%</span>
+                    </div>
+                </div>
+                <style>
+                    .progress-track {
+                        height: 10px;
+                        border-radius: 999px;
+                        background: rgba(255, 255, 255, 0.12);
+                        overflow: hidden;
+                    }
+                    .progress-fill {
+                        height: 100%;
+                        background: linear-gradient(120deg, #3ddc97 0%, #9cf5c8 100%);
+                        transition: width 0.6s ease;
+                    }
+                </style>
+                <script>
+                    const statusUrl = "{{ path('audit_status', {id: audit.id}) }}";
+                    const progressFill = document.querySelector('.progress-fill');
+                    const progressValue = document.querySelector('.progress-value');
+                    const progressMessage = document.querySelector('.progress-message');
+                    const progressError = document.querySelector('.progress-error');
+                    const progressHint = document.querySelector('.progress-hint');
+                    let progress = 6;
+                    let checks = 0;
+                    const tick = () => {
+                        progress = Math.min(95, progress + Math.random() * 6);
+                        const value = Math.round(progress);
+                        if (progressFill) {
+                            progressFill.style.width = value + '%';
+                        }
+                        if (progressValue) {
+                            progressValue.textContent = value + '%';
+                        }
+                    };
+                    const progressTimer = setInterval(tick, 1400);
+                    const checkStatus = async () => {
+                        try {
+                            const response = await fetch(statusUrl, { cache: "no-store" });
+                            if (!response.ok) {
+                                return;
+                            }
+                            const data = await response.json();
+                            if (data.status === 'FAILED') {
+                                clearInterval(progressTimer);
+                                if (progressFill) {
+                                    progressFill.style.width = '100%';
+                                }
+                                if (progressValue) {
+                                    progressValue.textContent = '100%';
+                                }
+                                if (progressError) {
+                                    progressError.style.display = 'block';
+                                }
+                                if (progressMessage) {
+                                    progressMessage.textContent = "Le calcul n'a pas pu aboutir.";
+                                }
+                                return;
+                            }
+                            if (data.computed) {
+                                clearInterval(progressTimer);
+                                if (progressFill) {
+                                    progressFill.style.width = '100%';
+                                }
+                                if (progressValue) {
+                                    progressValue.textContent = '100%';
+                                }
+                                setTimeout(() => window.location.reload(), 300);
+                            }
+                        } catch (error) {
+                            // keep silent and retry
+                        }
+                    };
+                    setInterval(() => {
+                        checks += 1;
+                        if (checks >= 20 && progressHint) {
+                            progressHint.style.display = 'block';
+                        }
+                        checkStatus();
+                    }, 2500);
+                </script>
+            {% elseif result %}
                 <div class="score">{{ result.scoresJson.global }}/100</div>
                 <div class="pill">Niveau: {{ result.levelsJson.global }}</div>
                 <p class="muted">Confiance donnees: {{ result.confidenceScore }}/100</p>
@@ -15,7 +110,7 @@
                 <p class="muted">Resultat indisponible.</p>
             {% endif %}
         </div>
-        {% if result %}
+        {% if result and not isComputing %}
             <div class="card">
                 <h2>Scores par alea</h2>
                 <div class="actions-list">

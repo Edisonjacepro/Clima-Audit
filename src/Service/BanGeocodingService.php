@@ -10,7 +10,7 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class IgnGeocodingService implements GeocodingServiceInterface
+class BanGeocodingService implements GeocodingServiceInterface
 {
     public function __construct(
         private HttpClientInterface $httpClient,
@@ -109,6 +109,6 @@ class IgnGeocodingService implements GeocodingServiceInterface
         $normalized = preg_replace('/\s+/', ' ', $normalized);
         $normalized = preg_replace('/[^a-z0-9_.-]+/', '_', $normalized);
 
-        return $normalized === '' ? 'geocode_empty' : 'geocode_'.$normalized;
+        return $normalized === '' ? 'geocode_ban_empty' : 'geocode_ban_'.$normalized;
     }
 }

@@ -14,6 +14,7 @@ parameters:
         medium: 50
         high: 75
     app.geocoding.base_url: '%env(default::GEOCODING_BASE_URL)%'
+    app.geocoding.ban_base_url: '%env(default::GEOCODING_BAN_BASE_URL)%'
     app.geo_api.base_url: '%env(default::GEO_API_BASE_URL)%'
     app.meteofrance.vigilance.base_url: '%env(default::METEOFRANCE_VIGILANCE_BASE_URL)%'
     app.meteofrance.vigilance.token: '%env(string:METEOFRANCE_API_TOKEN)%'
@@ -52,10 +53,19 @@ services:
         arguments:
             $providers: !tagged_iterator app.risk_provider
 
-    App\Service\GeocodingServiceInterface:
-        class: App\Service\IgnGeocodingService
+    App\Service\IgnGeocodingService:
         arguments:
             $baseUrl: '%app.geocoding.base_url%'
+
+    App\Service\BanGeocodingService:
+        arguments:
+            $baseUrl: '%app.geocoding.ban_base_url%'
+
+    App\Service\GeocodingServiceInterface:
+        class: App\Service\FallbackGeocodingService
+        arguments:
+            $primary: '@App\Service\IgnGeocodingService'
+            $secondary: '@App\Service\BanGeocodingService'
 
     App\Service\GeoApiGouvService:
         arguments:
