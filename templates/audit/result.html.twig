@@ -106,6 +106,7 @@
                 <div class="score">{{ result.scoresJson.global }}/100</div>
                 <div class="pill">Niveau: {{ result.levelsJson.global }}</div>
                 <p class="muted">Confiance donnees: {{ result.confidenceScore }}/100</p>
+                <a class="cta" style="margin-top:12px;" href="{{ path('audit_pdf', {id: audit.id}) }}">Telecharger le PDF detaille</a>
             {% else %}
                 <p class="muted">Resultat indisponible.</p>
             {% endif %}

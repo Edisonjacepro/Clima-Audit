@@ -6,6 +6,7 @@ use App\Entity\Audit;
 use App\Form\AuditType;
 use App\Service\GeocodingException;
 use App\Service\GeocodingServiceInterface;
+use App\Service\PdfReportService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -121,5 +122,21 @@ class AuditController extends AbstractController
         $response->setSharedMaxAge(0);
 
         return $response;
+    }
+
+    #[Route('/audit/{id}/pdf', name: 'audit_pdf')]
+    public function pdf(Audit $audit, PdfReportService $pdfReportService): Response
+    {
+        if ($audit->getResult() === null) {
+            throw $this->createNotFoundException('Resultat indisponible.');
+        }
+
+        $report = $pdfReportService->getOrGenerate($audit);
+        $path = $report->getPathOrKey();
+        if ($path === null || !is_file($path)) {
+            throw $this->createNotFoundException('PDF indisponible.');
+        }
+
+        return $this->file($path, sprintf('audit_%d.pdf', $audit->getId()));
     }
 }

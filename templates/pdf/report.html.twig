@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <title>Rapport d'audit climatique</title>
+        <style>
+            body {
+                font-family: "DejaVu Sans", Arial, sans-serif;
+                color: #1c2d2a;
+                line-height: 1.5;
+                font-size: 12px;
+            }
+            h1, h2, h3 {
+                margin: 0 0 10px;
+            }
+            .section {
+                margin-bottom: 18px;
+                padding-bottom: 12px;
+                border-bottom: 1px solid #d3d9d6;
+            }
+            .muted {
+                color: #5b6a66;
+            }
+            .grid {
+                display: table;
+                width: 100%;
+            }
+            .col {
+                display: table-cell;
+                vertical-align: top;
+                padding-right: 12px;
+            }
+            .pill {
+                display: inline-block;
+                padding: 4px 8px;
+                border-radius: 999px;
+                background: #e4f4ec;
+                color: #1b5c43;
+                font-weight: 600;
+                font-size: 11px;
+            }
+            .score {
+                font-size: 28px;
+                font-weight: 700;
+                color: #1b5c43;
+            }
+            ul {
+                margin: 8px 0 0 18px;
+                padding: 0;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 8px;
+            }
+            th, td {
+                border: 1px solid #d3d9d6;
+                padding: 8px;
+                text-align: left;
+                font-size: 11px;
+            }
+            th {
+                background: #f3f7f5;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Rapport d'audit express climat</h1>
+        <p class="muted">Adresse: {{ audit.address }}</p>
+        <p class="muted">Date: {{ result.computedAt ? result.computedAt|date('d/m/Y H:i') : "n/a" }}</p>
+
+        <div class="section">
+            <div class="grid">
+                <div class="col">
+                    <h2>Resume global</h2>
+                    <div class="score">{{ result.scoresJson.global }}/100</div>
+                    <div class="pill">Niveau: {{ result.levelsJson.global }}</div>
+                    <p class="muted">Confiance donnees: {{ result.confidenceScore }}/100</p>
+                </div>
+                <div class="col">
+                    <h3>Parametres</h3>
+                    <p class="muted">Type d'activite: {{ audit.inputActivityType ?: 'n/a' }}</p>
+                    <p class="muted">Type de batiment: {{ audit.inputBuildingType ?: 'n/a' }}</p>
+                    <p class="muted">Sous-sol: {{ audit.inputHasBasement ? 'Oui' : 'Non' }}</p>
+                    <p class="muted">Criticite: {{ audit.inputCriticality ?: 'n/a' }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Scores par alea</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Alea</th>
+                        <th>Score</th>
+                        <th>Niveau</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set labels = {
+                        'heat': 'Chaleur',
+                        'flood': 'Inondation',
+                        'drought_clay': 'Secheresse argiles',
+                        'cavites': 'Cavites souterraines'
+                    } %}
+                    {% for hazard, score in result.scoresJson %}
+                        {% if hazard != 'global' %}
+                            <tr>
+                                <td>{{ labels[hazard] ?? hazard }}</td>
+                                <td>{{ score }}/100</td>
+                                <td>{{ result.levelsJson[hazard] ?? 'n/a' }}</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Top 10 recommandations</h2>
+            <ul>
+                {% for action in result.recommendationsJson %}
+                    <li>
+                        <strong>{{ action.title }}</strong> — {{ action.description }}
+                        <span class="muted">(Effort {{ action.effort }}, impact {{ action.impact }}, horizon {{ action.horizon }})</span>
+                    </li>
+                {% else %}
+                    <li class="muted">Aucune recommandation disponible.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Details par alea</h2>
+            {% for hazard, explanation in result.explanationsJson %}
+                <h3>{{ labels[hazard] ?? hazard }}</h3>
+                <p class="muted">{{ explanation }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="section">
+            <h2>Sources et methodologie</h2>
+            <p class="muted">
+                Les scores sont des pre-diagnostics bases sur des donnees publiques et des modeles simplifies.
+                Les seuils utilises sont: faible &lt;25, moyen &lt;50, eleve &lt;75, tres eleve >=75.
+            </p>
+            <ul>
+                {% for source in result.dataSourcesJson %}
+                    <li>{{ source.name }} (version {{ source.version }}) - {{ source.fetchedAt }}</li>
+                {% else %}
+                    <li class="muted">Sources indisponibles.</li>
+                {% endfor %}
+            </ul>
+            <p class="muted" style="margin-top:8px;">
+                Geocodage: IGN Geoplateforme ou BAN. Risques: Meteo-France Vigilance, Georisques, Hub'Eau.
+            </p>
+        </div>
+
+        <div class="section">
+            <h2>Disclaimer</h2>
+            <p class="muted">
+                Le rapport est un pre-diagnostic base sur donnees publiques et modeles simplifies; il ne remplace pas une etude
+                d'ingenierie.
+            </p>
+        </div>
+    </body>
+</html>

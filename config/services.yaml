@@ -24,6 +24,7 @@ parameters:
     app.georisques.flood_rare_layer: '%env(default::GEORISQUES_FLOOD_RARE_LAYER_URL)%'
     app.georisques.rga_layer: '%env(default::GEORISQUES_RGA_LAYER_URL)%'
     app.georisques.cavites_layer: '%env(default::GEORISQUES_CAVITES_LAYER_URL)%'
+    app.pdf.report_dir: '%kernel.project_dir%/var/reports'
 
 services:
     # default configuration for services in *this* file
@@ -95,6 +96,10 @@ services:
     App\Service\Provider\CavitesRiskProvider:
         arguments:
             $layerUrl: '%app.georisques.cavites_layer%'
+
+    App\Service\PdfReportService:
+        arguments:
+            $reportDir: '%app.pdf.report_dir%'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
