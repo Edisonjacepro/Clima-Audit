@@ -18,6 +18,10 @@ parameters:
     app.geo_api.base_url: '%env(default::GEO_API_BASE_URL)%'
     app.meteofrance.vigilance.base_url: '%env(default::METEOFRANCE_VIGILANCE_BASE_URL)%'
     app.meteofrance.vigilance.token: '%env(string:METEOFRANCE_API_TOKEN)%'
+    app.meteofrance.oauth.token_url: '%env(default::METEOFRANCE_OAUTH_TOKEN_URL)%'
+    app.meteofrance.oauth.client_id: '%env(string:METEOFRANCE_CLIENT_ID)%'
+    app.meteofrance.oauth.client_secret: '%env(string:METEOFRANCE_CLIENT_SECRET)%'
+    app.meteofrance.oauth.application_id: '%env(string:METEOFRANCE_APPLICATION_ID)%'
     app.hubeau.base_url: '%env(default::HUBEAU_API_BASE_URL)%'
     app.georisques.flood_frequent_layer: '%env(default::GEORISQUES_FLOOD_FREQUENT_LAYER_URL)%'
     app.georisques.flood_medium_layer: '%env(default::GEORISQUES_FLOOD_MEDIUM_LAYER_URL)%'
@@ -78,10 +82,17 @@ services:
 
     App\Service\ArcGisRiskClient: ~
 
+    App\Service\MeteoFranceTokenProvider:
+        arguments:
+            $oauthTokenUrl: '%app.meteofrance.oauth.token_url%'
+            $clientId: '%app.meteofrance.oauth.client_id%'
+            $clientSecret: '%app.meteofrance.oauth.client_secret%'
+            $applicationId: '%app.meteofrance.oauth.application_id%'
+            $staticToken: '%app.meteofrance.vigilance.token%'
+
     App\Service\Provider\HeatRiskProvider:
         arguments:
             $baseUrl: '%app.meteofrance.vigilance.base_url%'
-            $apiToken: '%app.meteofrance.vigilance.token%'
 
     App\Service\Provider\FloodRiskProvider:
         arguments:

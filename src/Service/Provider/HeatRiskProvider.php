@@ -5,6 +5,7 @@ namespace App\Service\Provider;
 use App\Dto\RiskDataDTO;
 use App\Service\DataSourceUnavailableException;
 use App\Service\GeoApiGouvService;
+use App\Service\MeteoFranceTokenProvider;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
@@ -14,12 +15,13 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class HeatRiskProvider extends AbstractRiskProvider
 {
     private const PHENOMENON_ID = '6';
+    private const USER_AGENT = 'clima-audit-mvp/1.0 (contact: support@example.com)';
 
     public function __construct(
         private HttpClientInterface $httpClient,
         private GeoApiGouvService $geoApiGouvService,
         private string $baseUrl,
-        private string $apiToken,
+        private MeteoFranceTokenProvider $tokenProvider,
         \Psr\Cache\CacheItemPoolInterface $cache
     ) {
         parent::__construct($cache);
@@ -80,10 +82,7 @@ class HeatRiskProvider extends AbstractRiskProvider
         if ($baseUrl === '') {
             throw new DataSourceUnavailableException('Service Meteo-France indisponible.');
         }
-        $token = trim($this->apiToken);
-        if ($token === '') {
-            throw new DataSourceUnavailableException('Token Meteo-France manquant.');
-        }
+        $token = trim($this->tokenProvider->getToken());
 
         try {
             $response = $this->httpClient->request('GET', $baseUrl.'/cartevigilance/encours', [
@@ -91,6 +90,7 @@ class HeatRiskProvider extends AbstractRiskProvider
                 'headers' => [
                     'Accept' => 'application/json',
                     'Authorization' => 'Bearer '.$token,
+                    'User-Agent' => self::USER_AGENT,
                 ],
             ]);
         } catch (TransportExceptionInterface $exception) {

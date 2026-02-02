@@ -34,7 +34,8 @@ abstract class AbstractRiskProvider implements RiskDataProviderInterface
             $data = $this->buildUnavailableDto($exception->getMessage(), $lat, $lng);
         }
         $item->set($data);
-        $item->expiresAfter(86400);
+        $ttl = $data->confidence <= 0 ? 300 : 86400;
+        $item->expiresAfter($ttl);
         $this->cache->save($item);
 
         return $data;
