@@ -65,6 +65,7 @@ class SeedDemoDataCommand extends Command
             $action->setDescription($row['description']);
             $action->setHazardTags($row['hazard_tags']);
             $action->setSectorTags($row['sector_tags']);
+            $action->setBuildingTags($row['building_tags'] ?? []);
             $action->setEffort($row['effort']);
             $action->setCost($row['cost']);
             $action->setImpact($row['impact']);
@@ -97,6 +98,7 @@ class SeedDemoDataCommand extends Command
                 'description' => 'Verifier l\'entretien des systemes de ventilation et la qualite de l\'air.',
                 'hazard_tags' => ['heat'],
                 'sector_tags' => ['tertiaire', 'industrie', 'collectivite'],
+                'building_tags' => ['bureau', 'erp', 'logement'],
                 'effort' => 'med',
                 'cost' => 'â‚¬â‚¬',
                 'impact' => 'med',
@@ -108,6 +110,7 @@ class SeedDemoDataCommand extends Command
                 'description' => 'Installer stores, films ou brise-soleil pour limiter les surchauffes.',
                 'hazard_tags' => ['heat'],
                 'sector_tags' => [],
+                'building_tags' => ['bureau', 'erp', 'logement'],
                 'effort' => 'med',
                 'cost' => 'â‚¬â‚¬',
                 'impact' => 'high',
@@ -174,6 +177,7 @@ class SeedDemoDataCommand extends Command
                 'description' => 'Installer des capteurs simples pour mesurer la surchauffe.',
                 'hazard_tags' => ['heat'],
                 'sector_tags' => [],
+                'building_tags' => ['bureau', 'erp', 'logement'],
                 'effort' => 'low',
                 'cost' => 'â‚¬',
                 'impact' => 'low',
@@ -185,6 +189,7 @@ class SeedDemoDataCommand extends Command
                 'description' => 'Adapter les usages pour profiter de l\'inertie thermique.',
                 'hazard_tags' => ['heat'],
                 'sector_tags' => [],
+                'building_tags' => ['bureau', 'erp', 'logement'],
                 'effort' => 'med',
                 'cost' => 'â‚¬',
                 'impact' => 'med',
@@ -207,6 +212,7 @@ class SeedDemoDataCommand extends Command
                 'description' => 'Mettre les stocks critiques en hauteur ou sur palettes.',
                 'hazard_tags' => ['flood'],
                 'sector_tags' => ['industrie', 'tertiaire'],
+                'building_tags' => ['entrepot'],
                 'effort' => 'low',
                 'cost' => 'â‚¬',
                 'impact' => 'med',
@@ -218,6 +224,7 @@ class SeedDemoDataCommand extends Command
                 'description' => 'Installer des dispositifs amovibles pour proteger les acces.',
                 'hazard_tags' => ['flood'],
                 'sector_tags' => [],
+                'building_tags' => ['entrepot', 'erp'],
                 'effort' => 'med',
                 'cost' => 'â‚¬â‚¬',
                 'impact' => 'high',
@@ -251,6 +258,7 @@ class SeedDemoDataCommand extends Command
                 'description' => 'Preparer sacs de sable, pompes mobiles, protections.',
                 'hazard_tags' => ['flood'],
                 'sector_tags' => [],
+                'building_tags' => ['entrepot', 'erp'],
                 'effort' => 'low',
                 'cost' => 'â‚¬â‚¬',
                 'impact' => 'med',

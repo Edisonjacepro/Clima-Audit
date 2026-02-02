@@ -148,6 +148,13 @@
                         <div class="action-item">
                             <strong>{{ action.title }}</strong>
                             <div class="muted">{{ action.description }}</div>
+                            {% if action.reasons is defined %}
+                                <ul class="muted" style="margin: 6px 0 0 18px;">
+                                    {% for reason in action.reasons %}
+                                        <li>{{ reason }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
                             <div class="muted">Effort: {{ action.effort }} | Impact: {{ action.impact }} | Horizon: {{ action.horizon }}</div>
                         </div>
                     {% else %}

@@ -33,7 +33,9 @@ class AuditOrchestrator
             $audit->getInputActivityType(),
             $audit->getInputBuildingType(),
             $audit->hasBasement(),
-            $audit->getInputCriticality()
+            $audit->getInputCriticality(),
+            $scoring->levels,
+            $scoring->confidenceScore
         );
 
         $result = $audit->getResult() ?? new AuditResult();

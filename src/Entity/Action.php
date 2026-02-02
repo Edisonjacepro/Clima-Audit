@@ -26,6 +26,9 @@ class Action
     #[ORM\Column(type: Types::JSON)]
     private array $sectorTags = [];
 
+    #[ORM\Column(type: Types::JSON)]
+    private array $buildingTags = [];
+
     #[ORM\Column(length: 10)]
     private string $effort = 'low';
 
@@ -93,6 +96,18 @@ class Action
     public function setSectorTags(array $sectorTags): self
     {
         $this->sectorTags = $sectorTags;
+
+        return $this;
+    }
+
+    public function getBuildingTags(): array
+    {
+        return $this->buildingTags;
+    }
+
+    public function setBuildingTags(array $buildingTags): self
+    {
+        $this->buildingTags = $buildingTags;
 
         return $this;
     }

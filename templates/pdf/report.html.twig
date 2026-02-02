@@ -123,6 +123,13 @@
                 {% for action in result.recommendationsJson %}
                     <li>
                         <strong>{{ action.title }}</strong> — {{ action.description }}
+                        {% if action.reasons is defined %}
+                            <ul class="muted">
+                                {% for reason in action.reasons %}
+                                    <li>{{ reason }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
                         <span class="muted">(Effort {{ action.effort }}, impact {{ action.impact }}, horizon {{ action.horizon }})</span>
                     </li>
                 {% else %}
