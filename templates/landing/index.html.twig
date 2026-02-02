@@ -2,6 +2,10 @@
 
 {% block title %}Audit express climat{% endblock %}
 
+{% block head_extras %}
+    <link rel="prefetch" href="{{ path('audit_new') }}" as="document">
+{% endblock %}
+
 {% block body %}
     <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); align-items: center;">
         <div class="card">
@@ -16,7 +20,7 @@
                 <span class="badge">Secheresse argiles</span>
                 <span class="badge">Cavites souterraines</span>
             </p>
-            <a class="cta" href="{{ path('audit_new') }}">Lancer un audit</a>
+            <a class="cta" href="{{ path('audit_new') }}" data-loading-label="Ouverture...">Lancer un audit</a>
         </div>
         <div class="card">
             <h2>Apercu gratuit</h2>
@@ -54,4 +58,27 @@
             </p>
         </div>
     </div>
+    <script>
+        (function () {
+            if (window.sessionStorage && sessionStorage.getItem('auditNewPrefetched') === '1') {
+                return;
+            }
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            if (connection && connection.saveData) {
+                return;
+            }
+            const prefetch = function () {
+                fetch('{{ path('audit_new') }}', { credentials: 'same-origin' })
+                    .catch(function () {});
+                if (window.sessionStorage) {
+                    sessionStorage.setItem('auditNewPrefetched', '1');
+                }
+            };
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(prefetch, { timeout: 2000 });
+            } else {
+                setTimeout(prefetch, 800);
+            }
+        })();
+    </script>
 {% endblock %}

@@ -11,6 +11,11 @@ class LandingController extends AbstractController
     #[Route('/', name: 'landing')]
     public function index(): Response
     {
-        return $this->render('landing/index.html.twig');
+        $response = $this->render('landing/index.html.twig');
+        $response->setPublic();
+        $response->setMaxAge(300);
+        $response->setSharedMaxAge(300);
+
+        return $response;
     }
 }

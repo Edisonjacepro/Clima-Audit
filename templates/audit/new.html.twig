@@ -41,8 +41,41 @@
             </div>
         </div>
         <div>
-            {{ form_widget(form.submit, {attr: {class: 'btn'}}) }}
+            {{ form_widget(form.submit, {attr: {class: 'btn', 'data-loading-label': 'Lancement en cours'}}) }}
+            <div class="muted" id="audit-loading-hint" style="display:none; margin-top:10px;">
+                Recherche d'adresse et lancement de l'audit en cours. Merci de patienter.
+            </div>
         </div>
     {{ form_end(form) }}
 </div>
+<script>
+    (function () {
+        const form = document.querySelector('form');
+        if (!form) {
+            return;
+        }
+        const submit = form.querySelector('button[type="submit"], input[type="submit"]');
+        const hint = document.getElementById('audit-loading-hint');
+        if (!submit) {
+            return;
+        }
+        form.addEventListener('submit', function () {
+            submit.setAttribute('disabled', 'disabled');
+            const loadingLabel = submit.getAttribute('data-loading-label') || 'Chargement';
+            if (submit.tagName === 'BUTTON') {
+                submit.dataset.originalLabel = submit.textContent || '';
+                submit.textContent = loadingLabel + ' ';
+                const spinner = document.createElement('span');
+                spinner.className = 'spinner';
+                submit.appendChild(spinner);
+            } else {
+                submit.dataset.originalLabel = submit.value || '';
+                submit.value = loadingLabel;
+            }
+            if (hint) {
+                hint.style.display = 'block';
+            }
+        });
+    })();
+</script>
 {% endblock %}
